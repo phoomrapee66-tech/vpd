@@ -52,3 +52,17 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+def get_vpd():
+    try:
+        openapi = TuyaOpenAPI(ENDPOINT, ACCESS_ID, ACCESS_SECRET)
+        connect_result = openapi.connect()
+        print("Connect result:", connect_result)
+
+        data = openapi.get(f"/v1.0/devices/{DEVICE_ID}/status")
+        print("Status data:", data)
+
+        status_list = data.get("result", [])
+        ...
+    except Exception as e:
+        print("ERROR:", e)
+        return None
