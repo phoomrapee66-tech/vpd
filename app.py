@@ -56,13 +56,37 @@ def get_vpd():
     try:
         openapi = TuyaOpenAPI(ENDPOINT, ACCESS_ID, ACCESS_SECRET)
         connect_result = openapi.connect()
-        print("Connect result:", connect_result)
+        print("CONNECT RESULT:", connect_result, flush=True)
 
         data = openapi.get(f"/v1.0/devices/{DEVICE_ID}/status")
-        print("Status data:", data)
+        print("STATUS DATA:", data, flush=True)
 
         status_list = data.get("result", [])
-        ...
+        temp_raw = next((i["value"] for i in status_list if i["code"] == "temp_current"), None)
+        humidity = next((i["value"] for i in status_list if i["code"] == "humidity_value"), None)
+
+        if temp_raw is None or humidity is None:
+            print("MISSING temp or humidity in status_list:", status_list, flush=True)
+            return None
+
+        T = temp_raw / 10
+        SVP = 0.6108 * math.exp(17.27 * T / (T + 237.3))
+        AVP = SVP * (humidity / 100)
+        VPD = round(SVP - AVP, 3)
+
+        if VPD < 0.4:
+            zone = "ชื้นมากเกินไป — เสี่ยงเชื้อรา"
+        elif VPD < 0.8:
+            zone = "เหมาะสำหรับต้นกล้า"
+        elif VPD < 1.2:
+            zone = "เหมาะสมที่สุด"
+        elif VPD < 1.6:
+            zone = "เหมาะสำหรับช่วง Veg/Flower"
+        else:
+            zone = "แห้งเกินไป — ต้นไม้เครียด"
+
+        return {"temp": T, "humidity": humidity, "vpd": VPD, "zone": zone}
+
     except Exception as e:
-        print("ERROR:", e)
+        print("EXCEPTION:", e, flush=True)
         return None
