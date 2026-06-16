@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VPD Monitor</title>
+    <meta http-equiv="refresh" content="30">
+    <style>
+        body { font-family: sans-serif; background: #f0f4f0; text-align: center; padding: 40px; }
+        .card { background: white; border-radius: 16px; padding: 30px; max-width: 400px; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .vpd { font-size: 48px; font-weight: bold; color: #2e7d32; }
+        .label { color: #666; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>🌱 VPD Monitor</h2>
+        {% if data %}
+        <p class="label">Temperature: {{ data.temp }} °C</p>
+        <p class="label">Humidity: {{ data.humidity }} %</p>
+        <p class="vpd">{{ data.vpd }} kPa</p>
+        <p>{{ data.zone }}</p>
+        {% else %}
+        <p>ไม่สามารถดึงข้อมูลได้</p>
+        {% endif %}
+    </div>
+</body>
+</html>
